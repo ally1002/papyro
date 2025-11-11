@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/ally1002/papyro/internal/keyring"
 	"github.com/ally1002/papyro/internal/profile"
 	"github.com/spf13/cobra"
 )
@@ -21,9 +22,19 @@ var profileAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println(password)
+		fmt.Printf("password %s\n", password)
 
-		return profile.WriteProfile(name, fromEmail, kindleEmail)
+		err := profile.WriteProfile(name, fromEmail, kindleEmail)
+		if err != nil {
+			return err
+		}
+
+		err = keyring.SavePassword(name, password)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	},
 }
 
@@ -44,7 +55,7 @@ func init() {
 	}
 
 	profileAddCmd.Flags().StringVar(&password, "passwd", "", "sender email password")
-	if err := profileAddCmd.MarkFlagRequired("kindle-email"); err != nil {
+	if err := profileAddCmd.MarkFlagRequired("passwd"); err != nil {
 		panic(err)
 	}
 
