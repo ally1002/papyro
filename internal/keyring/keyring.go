@@ -18,6 +18,7 @@ func SavePassword(name string, password string) error {
 	}
 
 	// TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
+	// I'll keep this code here until we get the delete function
 
 	fmt.Printf("getting keyring: %s\n", name)
 	i, err := getKeyring(ring, name)
