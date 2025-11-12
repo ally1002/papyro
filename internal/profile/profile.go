@@ -38,14 +38,19 @@ func WriteProfile(name string, fromEmail string, kindleEmail string) error {
 	return err
 }
 
-// TODO: check if there is no profile with the same name or email
 func isProfileValid(name string, fromEmail string, kindleEmail string) error {
 	if name == "" && fromEmail == "" && kindleEmail == "" {
 		return fmt.Errorf("required args cannot be blank")
 	}
 
+	_, err := getProfile(name)
+	if err == nil {
+		return fmt.Errorf("profile '%s' already exists", name)
+	}
+
 	return nil
 }
+
 func readAndCreateJSON(fileName string, name string, fromEmail string, kindleEmail string) ([]byte, error) {
 
 	file, err := os.ReadFile(fileName)
@@ -67,4 +72,30 @@ func readAndCreateJSON(fileName string, name string, fromEmail string, kindleEma
 	}
 
 	return profiles, nil
+}
+
+func getProfile(name string) (Profile, error) {
+	_, fileName, err := config.GetConfig()
+	if err != nil {
+		return Profile{}, fmt.Errorf("could not determine user home directory: %w", err)
+	}
+
+	file, err := os.ReadFile(fileName)
+	if err != nil {
+		return Profile{}, err
+	}
+
+	var data Profiles
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return Profile{}, err
+	}
+
+	for _, profile := range data.Profiles {
+		if profile.Name == name {
+			return profile, nil
+		}
+	}
+
+	return Profile{}, fmt.Errorf("profile '%s' does not exist", name)
 }

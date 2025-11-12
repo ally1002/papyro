@@ -4,8 +4,6 @@ Copyright © 2025 ally1002
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/ally1002/papyro/internal/keyring"
 	"github.com/ally1002/papyro/internal/profile"
 	"github.com/spf13/cobra"
@@ -22,8 +20,6 @@ var profileAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("password %s\n", password)
-
 		err := profile.WriteProfile(name, fromEmail, kindleEmail)
 		if err != nil {
 			return err

@@ -17,7 +17,7 @@ func SavePassword(name string, password string) error {
 		return err
 	}
 
-	// finish here, the rest is only for testing
+	// TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
 
 	fmt.Printf("getting keyring: %s\n", name)
 	i, err := getKeyring(ring, name)
@@ -31,6 +31,8 @@ func SavePassword(name string, password string) error {
 	if err != nil {
 		fmt.Println("err -", err)
 	}
+
+	// TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
 
 	return nil
 }
