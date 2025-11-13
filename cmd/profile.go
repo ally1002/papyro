@@ -20,7 +20,7 @@ var profileAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := profile.WriteProfile(name, fromEmail, kindleEmail)
+		err := profile.CreateProfile(name, fromEmail, kindleEmail)
 		if err != nil {
 			return err
 		}
@@ -30,11 +30,24 @@ var profileAddCmd = &cobra.Command{
 			return err
 		}
 
+		// need to add a rollback here after destroy is created
+
+		return nil
+	},
+}
 		return nil
 	},
 }
 
 func init() {
+	profileAddFlags()
+
+	rootCmd.AddCommand(profileCmd)
+	profileCmd.AddCommand(profileAddCmd)
+	profileCmd.AddCommand(profileDeleteCmd)
+}
+
+func profileAddFlags() {
 	profileAddCmd.Flags().StringVarP(&name, "name", "n", "", "user name")
 	if err := profileAddCmd.MarkFlagRequired("name"); err != nil {
 		panic(err)
@@ -54,7 +67,4 @@ func init() {
 	if err := profileAddCmd.MarkFlagRequired("passwd"); err != nil {
 		panic(err)
 	}
-
-	rootCmd.AddCommand(profileCmd)
-	profileCmd.AddCommand(profileAddCmd)
 }

@@ -18,7 +18,7 @@ type Profiles struct {
 	Profiles []Profile `json:"profiles"`
 }
 
-func WriteProfile(name string, fromEmail string, kindleEmail string) error {
+func CreateProfile(name string, fromEmail string, kindleEmail string) error {
 	if err := isProfileValid(name, fromEmail, kindleEmail); err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func WriteProfile(name string, fromEmail string, kindleEmail string) error {
 		return fmt.Errorf("could not determine user home directory: %w", err)
 	}
 
-	profiles, err := readAndCreateJSON(fileName, name, fromEmail, kindleEmail)
+	profiles, err := writeProfile(name, fromEmail, kindleEmail)
 	if err != nil {
 		return err
 	}
@@ -51,15 +51,28 @@ func isProfileValid(name string, fromEmail string, kindleEmail string) error {
 	return nil
 }
 
-func readAndCreateJSON(fileName string, name string, fromEmail string, kindleEmail string) ([]byte, error) {
+func getProfiles() (Profiles, error) {
+	_, fileName, err := config.GetConfig()
+	if err != nil {
+		return Profiles{}, fmt.Errorf("could not determine user home directory: %w", err)
+	}
 
 	file, err := os.ReadFile(fileName)
 	if err != nil {
-		return nil, err
+		return Profiles{}, err
 	}
 
 	var data Profiles
 	err = json.Unmarshal(file, &data)
+	if err != nil {
+		return Profiles{}, err
+	}
+
+	return data, nil
+}
+
+func writeProfile(name string, fromEmail string, kindleEmail string) ([]byte, error) {
+	data, err := getProfiles()
 	if err != nil {
 		return nil, err
 	}
@@ -75,18 +88,7 @@ func readAndCreateJSON(fileName string, name string, fromEmail string, kindleEma
 }
 
 func getProfile(name string) (Profile, error) {
-	_, fileName, err := config.GetConfig()
-	if err != nil {
-		return Profile{}, fmt.Errorf("could not determine user home directory: %w", err)
-	}
-
-	file, err := os.ReadFile(fileName)
-	if err != nil {
-		return Profile{}, err
-	}
-
-	var data Profiles
-	err = json.Unmarshal(file, &data)
+	data, err := getProfiles()
 	if err != nil {
 		return Profile{}, err
 	}
