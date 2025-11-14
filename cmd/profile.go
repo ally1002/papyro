@@ -4,6 +4,8 @@ Copyright © 2025 ally1002
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/ally1002/papyro/internal/keyring"
 	"github.com/ally1002/papyro/internal/profile"
 	"github.com/spf13/cobra"
@@ -35,6 +37,19 @@ var profileAddCmd = &cobra.Command{
 		return nil
 	},
 }
+
+var profileDeleteCmd = &cobra.Command{
+	Use:   "delete [name]",
+	Short: "Delete profile",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf(`required argument "name" was not set`)
+		}
+
+		err := profile.DeleteProfile(args[0])
+		if err != nil {
+			return err
+		}
 		return nil
 	},
 }
