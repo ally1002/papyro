@@ -4,6 +4,8 @@ Copyright © 2025 ally1002
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/ally1002/papyro/internal/keyring"
 	"github.com/ally1002/papyro/internal/profile"
 	"github.com/spf13/cobra"
@@ -30,11 +32,34 @@ var profileAddCmd = &cobra.Command{
 			return err
 		}
 
-		// need to add a rollback here after destroy is created
+		// need to add a rollback here later
 
 		return nil
 	},
 }
+
+var profileDeleteCmd = &cobra.Command{
+	Use:   "delete [name]",
+	Short: "Delete profile",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) == 0 {
+			return fmt.Errorf(`required argument "name" was not set`)
+		}
+
+		profileName := args[0]
+
+		err := profile.DeleteProfile(profileName)
+		if err != nil {
+			return err
+		}
+
+		err = keyring.DeletePassword(profileName)
+		if err != nil {
+			return err
+		}
+
+		// need to add a here rollback later
+
 		return nil
 	},
 }

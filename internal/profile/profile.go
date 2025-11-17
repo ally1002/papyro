@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 
 	"github.com/ally1002/papyro/internal/config"
 )
@@ -23,19 +24,46 @@ func CreateProfile(name string, fromEmail string, kindleEmail string) error {
 		return err
 	}
 
-	_, fileName, err := config.GetConfig()
-	if err != nil {
-		return fmt.Errorf("could not determine user home directory: %w", err)
-	}
-
 	profiles, err := writeProfile(name, fromEmail, kindleEmail)
 	if err != nil {
 		return err
 	}
 
+	_, fileName, err := config.GetConfig()
+	if err != nil {
+		return fmt.Errorf("could not determine user home directory: %w", err)
+	}
+
 	err = os.WriteFile(fileName, profiles, 0600)
 
 	return err
+}
+
+func DeleteProfile(name string) error {
+	profile, err := getProfile(name)
+	if err != nil {
+		return err
+	}
+
+	data, err := getProfiles()
+	if err != nil {
+		return err
+	}
+
+	profileIndex := slices.Index(data.Profiles, profile)
+	data.Profiles = slices.Delete(data.Profiles, profileIndex, profileIndex+1)
+
+	profiles, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, fileName, err := config.GetConfig()
+	if err != nil {
+		return fmt.Errorf("could not determine user home directory: %w", err)
+	}
+
+	return os.WriteFile(fileName, profiles, 0600)
 }
 
 func isProfileValid(name string, fromEmail string, kindleEmail string) error {
