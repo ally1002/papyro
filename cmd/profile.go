@@ -32,7 +32,7 @@ var profileAddCmd = &cobra.Command{
 			return err
 		}
 
-		// need to add a rollback here after destroy is created
+		// need to add a rollback here later
 
 		return nil
 	},
@@ -46,10 +46,20 @@ var profileDeleteCmd = &cobra.Command{
 			return fmt.Errorf(`required argument "name" was not set`)
 		}
 
-		err := profile.DeleteProfile(args[0])
+		profileName := args[0]
+
+		err := profile.DeleteProfile(profileName)
 		if err != nil {
 			return err
 		}
+
+		err = keyring.DeletePassword(profileName)
+		if err != nil {
+			return err
+		}
+
+		// need to add a here rollback later
+
 		return nil
 	},
 }

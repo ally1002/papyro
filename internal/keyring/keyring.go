@@ -1,8 +1,6 @@
 package keyring
 
 import (
-	"fmt"
-
 	"github.com/99designs/keyring"
 )
 
@@ -17,23 +15,19 @@ func SavePassword(name string, password string) error {
 		return err
 	}
 
-	// TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
-	// I'll keep this code here until we get the delete function
+	return nil
+}
 
-	fmt.Printf("getting keyring: %s\n", name)
-	i, err := getKeyring(ring, name)
+func DeletePassword(name string) error {
+	ring, err := getKeyringService()
 	if err != nil {
-		fmt.Println("err -", err)
+		return err
 	}
-	fmt.Printf("keyring data: %s\n", i.Data)
 
-	fmt.Printf("deleting keyring: %s\n", name)
 	err = ring.Remove(name)
 	if err != nil {
-		fmt.Println("err -", err)
+		return err
 	}
-
-	// TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST
 
 	return nil
 }
