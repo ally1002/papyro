@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"text/tabwriter"
 
 	"github.com/ally1002/papyro/internal/config"
 )
@@ -37,6 +38,15 @@ func CreateProfile(name string, fromEmail string, kindleEmail string) error {
 	err = os.WriteFile(fileName, profiles, 0600)
 
 	return err
+}
+
+func ReadProfiles() error {
+	data, err := getProfiles()
+	if err != nil {
+		return err
+	}
+
+	return profilesTable(data.Profiles)
 }
 
 func DeleteProfile(name string) error {
@@ -128,4 +138,27 @@ func getProfile(name string) (Profile, error) {
 	}
 
 	return Profile{}, fmt.Errorf("profile '%s' does not exist", name)
+}
+
+func profilesTable(profiles []Profile) error {
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+
+	_, err := fmt.Fprintln(writer, "NAME\tFROM EMAIL\tKINDLE EMAIL")
+	if err != nil {
+		return err
+	}
+
+	for _, p := range profiles {
+		_, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", p.Name, p.FromEmail, p.KindleEmail)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

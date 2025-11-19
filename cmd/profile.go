@@ -38,6 +38,14 @@ var profileAddCmd = &cobra.Command{
 	},
 }
 
+var profileListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List profiles",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return profile.ReadProfiles()
+	},
+}
+
 var profileDeleteCmd = &cobra.Command{
 	Use:   "delete [name]",
 	Short: "Delete profile",
@@ -69,6 +77,7 @@ func init() {
 
 	rootCmd.AddCommand(profileCmd)
 	profileCmd.AddCommand(profileAddCmd)
+	profileCmd.AddCommand(profileListCmd)
 	profileCmd.AddCommand(profileDeleteCmd)
 }
 
