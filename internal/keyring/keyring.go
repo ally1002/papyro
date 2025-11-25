@@ -38,10 +38,6 @@ func getKeyringService() (keyring.Keyring, error) {
 	})
 }
 
-func getKeyring(ring keyring.Keyring, name string) (keyring.Item, error) {
-	return ring.Get(name)
-}
-
 func setKeyring(ring keyring.Keyring, name string, password string) error {
 	return ring.Set(keyring.Item{
 		Key:  name,

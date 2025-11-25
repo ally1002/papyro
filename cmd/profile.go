@@ -22,7 +22,7 @@ var profileAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := profile.CreateProfile(name, fromEmail, kindleEmail)
+		err := profile.CreateProfile(&profile.Profile{Name: name, FromEmail: fromEmail, KindleEmail: kindleEmail})
 		if err != nil {
 			return err
 		}

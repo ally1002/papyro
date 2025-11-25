@@ -20,12 +20,12 @@ type Profiles struct {
 	Profiles []Profile `json:"profiles"`
 }
 
-func CreateProfile(name string, fromEmail string, kindleEmail string) error {
-	if err := isProfileValid(name, fromEmail, kindleEmail); err != nil {
+func CreateProfile(profile *Profile) error {
+	if err := isProfileValid(profile); err != nil {
 		return err
 	}
 
-	profiles, err := writeProfile(name, fromEmail, kindleEmail)
+	profiles, err := writeProfile(profile)
 	if err != nil {
 		return err
 	}
@@ -76,14 +76,14 @@ func DeleteProfile(name string) error {
 	return os.WriteFile(fileName, profiles, 0600)
 }
 
-func isProfileValid(name string, fromEmail string, kindleEmail string) error {
-	if name == "" && fromEmail == "" && kindleEmail == "" {
+func isProfileValid(profile *Profile) error {
+	if profile.Name == "" && profile.FromEmail == "" && profile.KindleEmail == "" {
 		return fmt.Errorf("required args cannot be blank")
 	}
 
-	_, err := getProfile(name)
+	_, err := getProfile(profile.Name)
 	if err == nil {
-		return fmt.Errorf("profile '%s' already exists", name)
+		return fmt.Errorf("profile '%s' already exists", profile.Name)
 	}
 
 	return nil
@@ -109,13 +109,13 @@ func getProfiles() (Profiles, error) {
 	return data, nil
 }
 
-func writeProfile(name string, fromEmail string, kindleEmail string) ([]byte, error) {
+func writeProfile(profile *Profile) ([]byte, error) {
 	data, err := getProfiles()
 	if err != nil {
 		return nil, err
 	}
 
-	data.Profiles = append(data.Profiles, Profile{Name: name, FromEmail: fromEmail, KindleEmail: kindleEmail})
+	data.Profiles = append(data.Profiles, *profile)
 
 	profiles, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
