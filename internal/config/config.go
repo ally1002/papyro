@@ -7,6 +7,26 @@ import (
 	"path/filepath"
 )
 
+type Config struct {
+	Dir      string
+	FilePath string
+}
+
+func NewConfig() (*Config, error) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return &Config{}, err
+	}
+
+	dir := filepath.Join(configDir, "papyro")
+	fullPath := filepath.Join(dir, "profiles.json")
+
+	return &Config{
+		Dir:      dir,
+		FilePath: fullPath,
+	}, nil
+}
+
 func GetConfig() (string, string, error) {
 	homedir, err := os.UserHomeDir()
 	if err != nil {
@@ -19,29 +39,34 @@ func GetConfig() (string, string, error) {
 	return dir, fullPath, nil
 }
 
-func CheckAndCreateConfiguration() {
-	dir, fullPath, err := GetConfig()
-	if err != nil {
-		log.Fatalf("could not determine user home directory: %s", err)
+func (c *Config) Exists() bool {
+	_, err := os.Stat(c.FilePath)
+	return !os.IsNotExist(err)
+}
+
+func (c *Config) CreateIfNotExists() error {
+	if c.Exists() {
+		return nil
 	}
 
-	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
-		err := os.MkdirAll(dir, 0755)
-		if err != nil {
-			log.Fatalf("Error creating configuration directory %s: %v", dir, err)
-		}
+	err := os.MkdirAll(c.Dir, 0755)
+	if err != nil {
+		return err
+	}
 
-		data := map[string][]map[string]string{
-			"profiles": {},
-		}
-		jsonBytes, err := json.MarshalIndent(data, "", "  ")
-		if err != nil {
-			log.Fatalf("Error marshaling JSON: %v", err)
-		}
+	data := map[string][]map[string]string{
+		"profiles": {},
+	}
+	jsonBytes, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
 
-		err = os.WriteFile(fullPath, jsonBytes, 0600)
-		if err != nil {
-			log.Fatalf("Error creating configuration file %s: %v", fullPath, err)
-		}
+	return os.WriteFile(c.FilePath, jsonBytes, 0600)
+}
+
+func (c *Config) CheckAndCreateConfiguration() {
+	if err := c.CreateIfNotExists(); err != nil {
+		log.Fatalf("Error creating configuration: %v", err)
 	}
 }

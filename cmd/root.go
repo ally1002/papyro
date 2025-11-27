@@ -5,6 +5,7 @@ Copyright © 2025 ally1002
 package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/ally1002/papyro/internal/config"
@@ -27,5 +28,10 @@ func Execute() {
 }
 
 func init() {
-	config.CheckAndCreateConfiguration()
+	cfg, err := config.NewConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cfg.CheckAndCreateConfiguration()
 }

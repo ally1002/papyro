@@ -30,12 +30,12 @@ func CreateProfile(profile *Profile) error {
 		return err
 	}
 
-	_, fileName, err := config.GetConfig()
+	cfg, err := config.NewConfig()
 	if err != nil {
-		return fmt.Errorf("could not determine user home directory: %w", err)
+		return err
 	}
 
-	err = os.WriteFile(fileName, profiles, 0600)
+	err = os.WriteFile(cfg.FilePath, profiles, 0600)
 
 	return err
 }
@@ -68,12 +68,12 @@ func DeleteProfile(name string) error {
 		return err
 	}
 
-	_, fileName, err := config.GetConfig()
+	cfg, err := config.NewConfig()
 	if err != nil {
-		return fmt.Errorf("could not determine user home directory: %w", err)
+		return fmt.Errorf("could not determine user config directory: %w", err)
 	}
 
-	return os.WriteFile(fileName, profiles, 0600)
+	return os.WriteFile(cfg.FilePath, profiles, 0600)
 }
 
 func isProfileValid(profile *Profile) error {
@@ -90,12 +90,12 @@ func isProfileValid(profile *Profile) error {
 }
 
 func getProfiles() (Profiles, error) {
-	_, fileName, err := config.GetConfig()
+	cfg, err := config.NewConfig()
 	if err != nil {
-		return Profiles{}, fmt.Errorf("could not determine user home directory: %w", err)
+		return Profiles{}, fmt.Errorf("could not determine user config directory: %w", err)
 	}
 
-	file, err := os.ReadFile(fileName)
+	file, err := os.ReadFile(cfg.FilePath)
 	if err != nil {
 		return Profiles{}, err
 	}
