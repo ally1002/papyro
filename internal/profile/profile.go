@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/ally1002/papyro/internal/config"
+	"golang.org/x/text/unicode/rangetable"
 )
 
 type Profile struct {
@@ -18,26 +19,47 @@ type Profile struct {
 
 type Profiles struct {
 	Profiles []Profile `json:"profiles"`
+	config   *config.Config
 }
 
-func CreateProfile(profile *Profile) error {
-	if err := isProfileValid(profile); err != nil {
-		return err
-	}
-
-	profiles, err := writeProfile(profile)
-	if err != nil {
-		return err
-	}
-
+func NewProfiles() (*Profiles, error) {
 	cfg, err := config.NewConfig()
 	if err != nil {
+		return nil, err
+	}
+
+	ps := &Profiles{config: cfg}
+
+	if err := ps.load(); err != nil {
+		ps.Profiles = []Profile{}
+	}
+
+	return ps, nil
+}
+
+func (ps *Profiles) Get(name string) (*Profile, error) {
+	for _, profile := range ps.Profiles {
+		if profile.Name == name {
+			return &profile, nil
+		}
+	}
+
+	return &Profile{}, fmt.Errorf("profile '%s' does not exist", name)
+}
+
+func (ps *Profiles) Add(p *Profile) error {
+	if err := p.Validate(); err != nil {
 		return err
 	}
 
-	err = os.WriteFile(cfg.FilePath, profiles, 0600)
+	p, err := ps.Get(p.Name)
+	if err == nil {
+		return fmt.Errorf("profile '%s' already exists", p.Name)
+	}
 
-	return err
+	ps.Profiles = append(ps.Profiles, *p)
+
+	return ps.save()
 }
 
 func ReadProfiles() error {
@@ -47,6 +69,31 @@ func ReadProfiles() error {
 	}
 
 	return profilesTable(data.Profiles)
+}
+
+func (ps *Profiles) Delete(name string) error {
+	profile, err := ps.Get(name)
+	if err != nil {
+		return err
+	}
+
+	profileIndex := slices.Index(ps.Profiles, profile)
+	// for i, p := range ps.Profiles {
+	// }
+
+	ps.Profiles = slices.Delete(ps.Profiles, profileIndex, profileIndex+1)
+
+	profiles, err := json.MarshalIndent(ps.Profiles, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	cfg, err := config.NewConfig()
+	if err != nil {
+		return fmt.Errorf("could not determine user config directory: %w", err)
+	}
+
+	return os.WriteFile(cfg.FilePath, profiles, 0600)
 }
 
 func DeleteProfile(name string) error {
@@ -74,19 +121,6 @@ func DeleteProfile(name string) error {
 	}
 
 	return os.WriteFile(cfg.FilePath, profiles, 0600)
-}
-
-func isProfileValid(profile *Profile) error {
-	if profile.Name == "" && profile.FromEmail == "" && profile.KindleEmail == "" {
-		return fmt.Errorf("required args cannot be blank")
-	}
-
-	_, err := getProfile(profile.Name)
-	if err == nil {
-		return fmt.Errorf("profile '%s' already exists", profile.Name)
-	}
-
-	return nil
 }
 
 func getProfiles() (Profiles, error) {
@@ -158,6 +192,37 @@ func profilesTable(profiles []Profile) error {
 	err = writer.Flush()
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (ps *Profiles) save() error {
+	data, err := json.MarshalIndent(ps.Profiles, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(ps.config.FilePath, data, 0600)
+}
+
+func (ps *Profiles) load() error {
+	file, err := os.ReadFile(ps.config.FilePath)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(file, &ps.Profiles)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Profile) Validate() error {
+	if p.Name == "" && p.FromEmail == "" && p.KindleEmail == "" {
+		return fmt.Errorf("required args cannot be blank")
 	}
 
 	return nil
