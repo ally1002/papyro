@@ -113,21 +113,6 @@ func getProfiles() (Profiles, error) {
 	return data, nil
 }
 
-func getProfile(name string) (Profile, error) {
-	data, err := getProfiles()
-	if err != nil {
-		return Profile{}, err
-	}
-
-	for _, profile := range data.Profiles {
-		if profile.Name == name {
-			return profile, nil
-		}
-	}
-
-	return Profile{}, fmt.Errorf("profile '%s' does not exist", name)
-}
-
 func profilesTable(profiles []Profile) error {
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 
