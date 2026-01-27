@@ -51,9 +51,9 @@ func (ps *Profiles) Add(p *Profile) error {
 		return err
 	}
 
-	p, err := ps.Get(p.Name)
+	profile, err := ps.Get(p.Name)
 	if err == nil {
-		return fmt.Errorf("profile '%s' already exists", p.Name)
+		return fmt.Errorf("profile '%s' already exists", profile.Name)
 	}
 
 	ps.Profiles = append(ps.Profiles, *p)
