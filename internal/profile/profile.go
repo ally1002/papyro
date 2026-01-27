@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/ally1002/papyro/internal/config"
-	"golang.org/x/text/unicode/rangetable"
 )
 
 type Profile struct {
@@ -77,40 +76,11 @@ func (ps *Profiles) Delete(name string) error {
 		return err
 	}
 
-	profileIndex := slices.Index(ps.Profiles, profile)
-	// for i, p := range ps.Profiles {
-	// }
+	profileIndex := slices.Index(ps.Profiles, *profile)
 
 	ps.Profiles = slices.Delete(ps.Profiles, profileIndex, profileIndex+1)
 
 	profiles, err := json.MarshalIndent(ps.Profiles, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	cfg, err := config.NewConfig()
-	if err != nil {
-		return fmt.Errorf("could not determine user config directory: %w", err)
-	}
-
-	return os.WriteFile(cfg.FilePath, profiles, 0600)
-}
-
-func DeleteProfile(name string) error {
-	profile, err := getProfile(name)
-	if err != nil {
-		return err
-	}
-
-	data, err := getProfiles()
-	if err != nil {
-		return err
-	}
-
-	profileIndex := slices.Index(data.Profiles, profile)
-	data.Profiles = slices.Delete(data.Profiles, profileIndex, profileIndex+1)
-
-	profiles, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}
