@@ -61,13 +61,26 @@ func (ps *Profiles) Add(p *Profile) error {
 	return ps.save()
 }
 
-func ReadProfiles() error {
-	data, err := getProfiles()
+func (ps *Profiles) List() error {
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+
+	_, err := fmt.Fprintln(writer, "NAME\tFROM EMAIL\tKINDLE EMAIL")
 	if err != nil {
 		return err
 	}
 
-	return profilesTable(data.Profiles)
+	fmt.Println("ps.Profiles: ", ps.Profiles)
+
+	for _, p := range ps.Profiles {
+		fmt.Println("p: ", p)
+
+		_, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", p.Name, p.FromEmail, p.KindleEmail)
+		if err != nil {
+			return err
+		}
+	}
+
+	return writer.Flush()
 }
 
 func (ps *Profiles) Delete(name string) error {
@@ -91,49 +104,6 @@ func (ps *Profiles) Delete(name string) error {
 	}
 
 	return os.WriteFile(cfg.FilePath, profiles, 0600)
-}
-
-func getProfiles() (Profiles, error) {
-	cfg, err := config.NewConfig()
-	if err != nil {
-		return Profiles{}, fmt.Errorf("could not determine user config directory: %w", err)
-	}
-
-	file, err := os.ReadFile(cfg.FilePath)
-	if err != nil {
-		return Profiles{}, err
-	}
-
-	var data Profiles
-	err = json.Unmarshal(file, &data)
-	if err != nil {
-		return Profiles{}, err
-	}
-
-	return data, nil
-}
-
-func profilesTable(profiles []Profile) error {
-	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-
-	_, err := fmt.Fprintln(writer, "NAME\tFROM EMAIL\tKINDLE EMAIL")
-	if err != nil {
-		return err
-	}
-
-	for _, p := range profiles {
-		_, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", p.Name, p.FromEmail, p.KindleEmail)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = writer.Flush()
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (ps *Profiles) save() error {
