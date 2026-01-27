@@ -69,11 +69,7 @@ func (ps *Profiles) List() error {
 		return err
 	}
 
-	fmt.Println("ps.Profiles: ", ps.Profiles)
-
 	for _, p := range ps.Profiles {
-		fmt.Println("p: ", p)
-
 		_, err := fmt.Fprintf(writer, "%s\t%s\t%s\n", p.Name, p.FromEmail, p.KindleEmail)
 		if err != nil {
 			return err
