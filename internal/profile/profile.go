@@ -113,22 +113,6 @@ func getProfiles() (Profiles, error) {
 	return data, nil
 }
 
-func writeProfile(profile *Profile) ([]byte, error) {
-	data, err := getProfiles()
-	if err != nil {
-		return nil, err
-	}
-
-	data.Profiles = append(data.Profiles, *profile)
-
-	profiles, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return nil, err
-	}
-
-	return profiles, nil
-}
-
 func getProfile(name string) (Profile, error) {
 	data, err := getProfiles()
 	if err != nil {
