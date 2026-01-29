@@ -22,17 +22,25 @@ var profileAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add profile",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := profile.CreateProfile(&profile.Profile{Name: name, FromEmail: fromEmail, KindleEmail: kindleEmail})
+		ps, err := profile.NewProfiles()
 		if err != nil {
 			return err
 		}
 
-		err = keyring.SavePassword(name, password)
+		kr, err := keyring.NewRing()
 		if err != nil {
 			return err
 		}
 
-		// need to add a rollback here later
+		err = ps.Add(&profile.Profile{Name: name, FromEmail: fromEmail, KindleEmail: kindleEmail})
+		if err != nil {
+			return err
+		}
+
+		err = kr.Save(name, password)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	},
@@ -42,7 +50,12 @@ var profileListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List profiles",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return profile.ReadProfiles()
+		ps, err := profile.NewProfiles()
+		if err != nil {
+			return err
+		}
+
+		return ps.List()
 	},
 }
 
@@ -56,12 +69,22 @@ var profileDeleteCmd = &cobra.Command{
 
 		profileName := args[0]
 
-		err := profile.DeleteProfile(profileName)
+		ps, err := profile.NewProfiles()
 		if err != nil {
 			return err
 		}
 
-		err = keyring.DeletePassword(profileName)
+		kr, err := keyring.NewRing()
+		if err != nil {
+			return err
+		}
+
+		err = ps.Delete(profileName)
+		if err != nil {
+			return err
+		}
+
+		err = kr.Delete(profileName)
 		if err != nil {
 			return err
 		}

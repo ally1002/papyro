@@ -27,18 +27,6 @@ func NewConfig() (*Config, error) {
 	}, nil
 }
 
-func GetConfig() (string, string, error) {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return "", "", err
-	}
-
-	dir := filepath.Join(homedir, ".config", "papyro")
-	fullPath := filepath.Join(dir, "profiles.json")
-
-	return dir, fullPath, nil
-}
-
 func (c *Config) Exists() bool {
 	_, err := os.Stat(c.FilePath)
 	return !os.IsNotExist(err)
