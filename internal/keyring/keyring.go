@@ -4,18 +4,23 @@ import (
 	"github.com/99designs/keyring"
 )
 
-func SavePassword(name string, password string) error {
-	ring, err := getKeyringService()
+type Keyring struct {
+	ring keyring.Keyring
+}
+
+func NewRing() (*Keyring, error) {
+	ring, err := keyring.Open(keyring.Config{
+		ServiceName: "papyro",
+	})
 	if err != nil {
-		return err
+		return &Keyring{}, err
 	}
 
-	err = setKeyring(ring, name, password)
-	if err != nil {
-		return err
-	}
+	return &Keyring{ring: ring}, nil
+}
 
-	return nil
+func (kr *Keyring) Save(name string, password string) error {
+	return setKeyring(kr.ring, name, password)
 }
 
 func DeletePassword(name string) error {

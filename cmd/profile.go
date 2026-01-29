@@ -27,17 +27,20 @@ var profileAddCmd = &cobra.Command{
 			return err
 		}
 
+		kr, err := keyring.NewRing()
+		if err != nil {
+			return err
+		}
+
 		err = ps.Add(&profile.Profile{Name: name, FromEmail: fromEmail, KindleEmail: kindleEmail})
 		if err != nil {
 			return err
 		}
 
-		err = keyring.SavePassword(name, password)
+		err = kr.Save(name, password)
 		if err != nil {
 			return err
 		}
-
-		// need to add a rollback here later
 
 		return nil
 	},
