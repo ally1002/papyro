@@ -89,17 +89,7 @@ func (ps *Profiles) Delete(name string) error {
 
 	ps.Profiles = slices.Delete(ps.Profiles, profileIndex, profileIndex+1)
 
-	profiles, err := json.MarshalIndent(ps.Profiles, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	cfg, err := config.NewConfig()
-	if err != nil {
-		return fmt.Errorf("could not determine user config directory: %w", err)
-	}
-
-	return os.WriteFile(cfg.FilePath, profiles, 0600)
+	return ps.save()
 }
 
 func (ps *Profiles) save() error {
