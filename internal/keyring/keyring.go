@@ -20,32 +20,12 @@ func NewRing() (*Keyring, error) {
 }
 
 func (kr *Keyring) Save(name string, password string) error {
-	return setKeyring(kr.ring, name, password)
-}
-
-func DeletePassword(name string) error {
-	ring, err := getKeyringService()
-	if err != nil {
-		return err
-	}
-
-	err = ring.Remove(name)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getKeyringService() (keyring.Keyring, error) {
-	return keyring.Open(keyring.Config{
-		ServiceName: "papyro",
-	})
-}
-
-func setKeyring(ring keyring.Keyring, name string, password string) error {
-	return ring.Set(keyring.Item{
+	return kr.ring.Set(keyring.Item{
 		Key:  name,
 		Data: []byte(password),
 	})
+}
+
+func (kr *Keyring) Delete(name string) error {
+	return kr.ring.Remove(name)
 }

@@ -74,12 +74,17 @@ var profileDeleteCmd = &cobra.Command{
 			return err
 		}
 
+		kr, err := keyring.NewRing()
+		if err != nil {
+			return err
+		}
+
 		err = ps.Delete(profileName)
 		if err != nil {
 			return err
 		}
 
-		err = keyring.DeletePassword(profileName)
+		err = kr.Delete(profileName)
 		if err != nil {
 			return err
 		}
