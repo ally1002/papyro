@@ -19,6 +19,10 @@ func NewRing() (*Keyring, error) {
 	return &Keyring{ring: ring}, nil
 }
 
+func (kr *Keyring) Get(name string) (keyring.Item, error) {
+	return kr.ring.Get(name)
+}
+
 func (kr *Keyring) Save(name string, password string) error {
 	return kr.ring.Set(keyring.Item{
 		Key:  name,
