@@ -37,13 +37,15 @@ func NewProfiles() (*Profiles, error) {
 }
 
 func (ps *Profiles) Get(name string) (*Profile, error) {
-	for _, profile := range ps.Profiles {
-		if profile.Name == name {
-			return &profile, nil
-		}
+	idx := slices.IndexFunc(ps.Profiles, func(p Profile) bool {
+		return p.Name == name
+	})
+
+	if idx == -1 {
+		return nil, fmt.Errorf("profile '%s' does not exist", name)
 	}
 
-	return &Profile{}, fmt.Errorf("profile '%s' does not exist", name)
+	return &ps.Profiles[idx], nil
 }
 
 func (ps *Profiles) Add(p *Profile) error {
@@ -116,7 +118,7 @@ func (ps *Profiles) load() error {
 }
 
 func (p *Profile) Validate() error {
-	if p.Name == "" && p.FromEmail == "" && p.KindleEmail == "" {
+	if p.Name == "" || p.FromEmail == "" || p.KindleEmail == "" {
 		return fmt.Errorf("required args cannot be blank")
 	}
 
