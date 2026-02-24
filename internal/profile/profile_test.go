@@ -80,3 +80,27 @@ func TestGet(t *testing.T) {
 		})
 	}
 }
+
+func TestAdd(t *testing.T) {
+	ps := setup(t)
+
+	tests := []struct {
+		name             string
+		profileToBeAdded *Profile
+		wantErr          bool
+	}{
+		{"add a valid profile - should pass", &Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
+		{"does not add an invalid profile - should fail", &Profile{Name: "", FromEmail: "", KindleEmail: ""}, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ps.Add(tt.profileToBeAdded)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
