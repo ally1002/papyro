@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ally1002/papyro/internal/keyring"
 	"github.com/ally1002/papyro/internal/profile"
@@ -55,7 +56,7 @@ var profileListCmd = &cobra.Command{
 			return err
 		}
 
-		return ps.List()
+		return ps.List(os.Stdout)
 	},
 }
 

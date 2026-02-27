@@ -3,6 +3,7 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"slices"
 	"text/tabwriter"
@@ -63,8 +64,8 @@ func (ps *Profiles) Add(p *Profile) error {
 	return ps.save()
 }
 
-func (ps *Profiles) List() error {
-	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+func (ps *Profiles) List(w io.Writer) error {
+	writer := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
 
 	_, err := fmt.Fprintln(writer, "NAME\tFROM EMAIL\tKINDLE EMAIL")
 	if err != nil {

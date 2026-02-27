@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
@@ -137,3 +138,20 @@ func TestDelete(t *testing.T) {
 	}
 }
 
+func TestList(t *testing.T) {
+	ps := setup(t)
+
+	err := ps.Add(&Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"})
+	require.NoError(t, err)
+
+	var buf bytes.Buffer
+
+	err = ps.List(&buf)
+	require.NoError(t, err)
+
+	output := buf.String()
+	assert.Contains(t, output, "NAME")
+	assert.Contains(t, output, "aly")
+	assert.Contains(t, output, "aly@aly.com")
+	assert.Contains(t, output, "aly@kindle.com")
+}
