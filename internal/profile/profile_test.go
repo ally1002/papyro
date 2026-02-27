@@ -104,3 +104,36 @@ func TestAdd(t *testing.T) {
 		})
 	}
 }
+
+func TestDelete(t *testing.T) {
+	ps := setup(t)
+	err := ps.Add(&Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"})
+	require.NoError(t, err)
+	err = ps.Add(&Profile{Name: "alyen", FromEmail: "alyen@alyen.com", KindleEmail: "alyen@kindle.com"})
+	require.NoError(t, err)
+
+	tests := []struct {
+		name               string
+		profileToBeDeleted string
+		wantErr            bool
+	}{
+		{"deletes the profile - should pass", "alyen", false},
+		{"does not delete a profile that does not exist", "ghost", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ps.Delete(tt.profileToBeDeleted)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.Len(t, ps.Profiles, 1)
+
+				_, err := ps.Get(tt.profileToBeDeleted)
+				require.Error(t, err)
+			}
+		})
+	}
+}
+
