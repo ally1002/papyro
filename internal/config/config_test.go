@@ -14,9 +14,7 @@ func TestCreateIfNotExists(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "papyro-test")
 	require.NoError(t, err, "failed to create temp dir")
 
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
 
 	config := &Config{
 		Dir:      tempDir,
@@ -42,9 +40,7 @@ func TestExists(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "papyro-test")
 	require.NoError(t, err, "failed to create temp dir")
 
-	t.Cleanup(func() {
-		_ = os.RemoveAll(tempDir)
-	})
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
 
 	config := &Config{
 		Dir:      tempDir,

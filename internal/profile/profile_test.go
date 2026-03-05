@@ -42,13 +42,13 @@ func setup(t *testing.T) *Profiles {
 	tempDir, err := os.MkdirTemp("", "papyro-test")
 	require.NoError(t, err)
 
-	t.Cleanup(func() { os.RemoveAll(tempDir) })
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
 
 	cfg := &config.Config{
 		Dir:      tempDir,
 		FilePath: filepath.Join(tempDir, "profiles.json"),
 	}
-	cfg.CreateIfNotExists()
+	_ = cfg.CreateIfNotExists()
 
 	return &Profiles{Profiles: []Profile{}, config: cfg}
 }

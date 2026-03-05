@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/ally1002/papyro/internal/profile"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,10 +16,10 @@ func setup(t *testing.T) *Email {
 	file, _ := os.CreateTemp(tempDir, "fileToSend_*.txt")
 
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
-	password := "12344321"
+	password := []byte("12344321")
 	filePath := file.Name()
 
-	email, err := NewEmail(profile, []byte(password), filePath)
+	email, err := NewEmail(profile, password, filePath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +56,7 @@ func TestNewEmail_ValidateFileExtension(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tempDir, _ := os.MkdirTemp("", "papyro-test")
 			file, _ := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
-			t.Cleanup(func() { os.RemoveAll(tempDir) })
+			t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
 
 			filePath := file.Name()
 
