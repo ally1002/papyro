@@ -54,13 +54,16 @@ func TestNewEmail_ValidateFileExtension(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tempDir, _ := os.MkdirTemp("", "papyro-test")
-			file, _ := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
+			tempDir, err := os.MkdirTemp("", "papyro-test")
+			require.NoError(t, err, "failed to create temp dir")
 			t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+
+			file, _ := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
+			require.NoError(t, err, "failed to create temp file")
 
 			filePath := file.Name()
 
-			_, err := NewEmail(profile, password, filePath)
+			_, err = NewEmail(profile, password, filePath)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
