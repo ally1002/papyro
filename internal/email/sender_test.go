@@ -27,9 +27,81 @@ func setup(t *testing.T) *Email {
 	return email
 }
 
+func TestNewEmail_ValidateFileIsDir(t *testing.T) {
+	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
+	password := []byte("12344321")
+
+	tempDir, err := os.MkdirTemp("", "papyro-test")
+	require.NoError(t, err, "failed to create temp dir")
+
+	file, err := os.CreateTemp(tempDir, "fileToSend_*.txt")
+	require.NoError(t, err, "failed to create temp file")
+
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+
+	tests := []struct {
+		name     string
+		filePath string
+		wantErr  bool
+	}{
+		{"when filePath is not a directory - should pass", file.Name(), false},
+		{"when filePath is a directory - should fail", tempDir, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err = NewEmail(profile, password, tt.filePath)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+
+}
+
+func TestNewEmail_ValidateFileExistence(t *testing.T) {
+	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
+	password := []byte("12344321")
+
+	tempDir, err := os.MkdirTemp("", "papyro-test")
+	require.NoError(t, err, "failed to create temp dir")
+
+	file, err := os.CreateTemp(tempDir, "fileToSend_*.txt")
+	require.NoError(t, err, "failed to create temp file")
+
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+
+	tests := []struct {
+		name     string
+		filePath string
+		wantErr  bool
+	}{
+		{"when file exists - should pass", file.Name(), false},
+		{"when file does not exist - should fail", "file/does/not/exist.txt", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err = NewEmail(profile, password, tt.filePath)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+
+}
+
 func TestNewEmail_ValidateFileExtension(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
+
+	tempDir, err := os.MkdirTemp("", "papyro-test")
+	require.NoError(t, err, "failed to create temp dir")
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
 
 	tests := []struct {
 		name    string
@@ -54,10 +126,6 @@ func TestNewEmail_ValidateFileExtension(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tempDir, err := os.MkdirTemp("", "papyro-test")
-			require.NoError(t, err, "failed to create temp dir")
-			t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
-
 			file, _ := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
 			require.NoError(t, err, "failed to create temp file")
 
