@@ -27,6 +27,42 @@ func setup(t *testing.T) *Email {
 	return email
 }
 
+func TestNewEmail_ValidateFileSize(t *testing.T) {
+	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
+	password := []byte("12344321")
+
+	tempDir, err := os.MkdirTemp("", "papyro-test")
+	require.NoError(t, err, "failed to create temp dir")
+	t.Cleanup(func() { _ = os.RemoveAll(tempDir) })
+
+	tests := []struct {
+		name     string
+		fileSize int64
+		wantErr  bool
+	}{
+		{"when file is not larger than 200mb - should pass", 25 * 1024 * 1024, false},
+		{"when file is exactly 200mb - should pass", 200 * 1024 * 1024, false},
+		{"when file is larger than 200mb - should fail", 200*1024*1024 + 1, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			file, err := os.CreateTemp(tempDir, "*.pdf")
+			require.NoError(t, err)
+
+			err = os.Truncate(file.Name(), tt.fileSize)
+			require.NoError(t, err, "failed to create/truncate file")
+
+			_, err = NewEmail(profile, password, file.Name())
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestNewEmail_ValidateFileIsDir(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
