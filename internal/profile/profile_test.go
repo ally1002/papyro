@@ -17,11 +17,11 @@ func TestValidate(t *testing.T) {
 		profile Profile
 		wantErr bool
 	}{
-		{"all empty - should fail", Profile{}, true},
-		{"only name - should fail", Profile{Name: "aly"}, true},
-		{"only fromEmail - should fail", Profile{FromEmail: "aly@aly.com"}, true},
-		{"only kindleEmail - should fail", Profile{KindleEmail: "aly@kindle.com"}, true},
-		{"all fields - should pass", Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
+		{"fails when all empty", Profile{}, true},
+		{"fails when only name provided", Profile{Name: "aly"}, true},
+		{"fails when only fromEmail provided", Profile{FromEmail: "aly@aly.com"}, true},
+		{"fails when only kindleEmail provided", Profile{KindleEmail: "aly@kindle.com"}, true},
+		{"passes when all fields provided", Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
 	}
 
 	for _, tt := range tests {
@@ -64,8 +64,8 @@ func TestGet(t *testing.T) {
 		wantErr  bool
 		wantName string
 	}{
-		{"finds the profile by name - should pass", "aly", false, "aly"},
-		{"does not find the profile by name - should fail", "alyen", true, ""},
+		{"finds existing profile", "aly", false, "aly"},
+		{"fails when profile is missing", "alyen", true, ""},
 	}
 
 	for _, tt := range tests {
@@ -90,8 +90,8 @@ func TestAdd(t *testing.T) {
 		profileToBeAdded *Profile
 		wantErr          bool
 	}{
-		{"add a valid profile - should pass", &Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
-		{"does not add an invalid profile - should fail", &Profile{Name: "", FromEmail: "", KindleEmail: ""}, true},
+		{"passes with valid profile", &Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
+		{"fails when profile is invalid", &Profile{Name: "", FromEmail: "", KindleEmail: ""}, true},
 	}
 
 	for _, tt := range tests {
@@ -118,8 +118,8 @@ func TestDelete(t *testing.T) {
 		profileToBeDeleted string
 		wantErr            bool
 	}{
-		{"deletes the profile - should pass", "alyen", false},
-		{"does not delete a profile that does not exist", "ghost", true},
+		{"deletes existing profile", "alyen", false},
+		{"fails when profile does not exist", "ghost", true},
 	}
 
 	for _, tt := range tests {

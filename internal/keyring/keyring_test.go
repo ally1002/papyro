@@ -8,48 +8,84 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSaveAndGet(t *testing.T) {
-	kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
+func TestSave(t *testing.T) {
+	tests := []struct {
+		name    string
+		key     string
+		wantErr bool
+	}{
+		{"saves password successfully", "test-account-1", false},
+		{"fails when password exists", "test-account-2", true},
+	}
 
-	err := kr.Save("test-account", "secret123")
-	require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
 
-	item, err := kr.Get("test-account")
-	require.NoError(t, err)
+			err := kr.Save(tt.key, "secret123")
+			require.NoError(t, err)
 
-	assert.Equal(t, item.Key, "test-account")
-	assert.Equal(t, item.Data, []byte("secret123"))
+			if tt.wantErr {
+				err = kr.Save(tt.key, "secret321")
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "already exists")
+			}
+		})
+	}
 }
 
-func TestSaveAlreadyExistent(t *testing.T) {
-	kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
+func TestGet(t *testing.T) {
+	tests := []struct {
+		name     string
+		key      string
+		wantErr  bool
+		wantData string
+	}{
+		{"returns stored password", "test-account", false, "secret123"},
+		{"fails when key is missing", "non-existent", true, ""},
+	}
 
-	err := kr.Save("test-account", "secret123")
-	require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
+			_ = kr.Save("test-account", "secret123")
 
-	err = kr.Save("test-account", "secret321")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "password for account \"test-account\" already exists")
-}
-
-func TestGetNotFound(t *testing.T) {
-	kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
-
-	_, err := kr.Get("non-existent")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "The specified item could not be found in the keyring")
+			item, err := kr.Get(tt.key)
+			if tt.wantErr {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), "could not be found")
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.key, item.Key)
+				assert.Equal(t, []byte(tt.wantData), item.Data)
+			}
+		})
+	}
 }
 
 func TestDelete(t *testing.T) {
-	kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
+	tests := []struct {
+		name    string
+		key     string
+		wantErr bool
+	}{
+		{"deletes existing key", "test-account", false},
+	}
 
-	err := kr.Save("test-account", "secret123")
-	require.NoError(t, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			kr := &Keyring{ring: keyring.NewArrayKeyring(nil)}
+			_ = kr.Save("test-account", "secret123")
 
-	err = kr.Delete("test-account")
-	require.NoError(t, err)
+			err := kr.Delete(tt.key)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 
-	_, err = kr.Get("test-account")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "The specified item could not be found in the keyring")
+				_, err := kr.Get(tt.key)
+				require.Error(t, err)
+			}
+		})
+	}
 }

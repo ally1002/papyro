@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewEmail_ValidateFileSize(t *testing.T) {
+func TestValidateFileSize(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
 
@@ -26,9 +26,9 @@ func TestNewEmail_ValidateFileSize(t *testing.T) {
 		fileSize int64
 		wantErr  bool
 	}{
-		{"when file is not larger than 200mb - should pass", 25 * 1024 * 1024, false},
-		{"when file is exactly 200mb - should pass", 200 * 1024 * 1024, false},
-		{"when file is larger than 200mb - should fail", 200*1024*1024 + 1, true},
+		{"under 200mb passes", 25 * 1024 * 1024, false},
+		{"exactly 200mb passes", 200 * 1024 * 1024, false},
+		{"fails when over 200mb", 200*1024*1024 + 1, true},
 	}
 
 	for _, tt := range tests {
@@ -49,7 +49,7 @@ func TestNewEmail_ValidateFileSize(t *testing.T) {
 	}
 }
 
-func TestNewEmail_ValidateFileIsDir(t *testing.T) {
+func TestValidateFileIsDir(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
 
@@ -66,8 +66,8 @@ func TestNewEmail_ValidateFileIsDir(t *testing.T) {
 		filePath string
 		wantErr  bool
 	}{
-		{"when filePath is not a directory - should pass", file.Name(), false},
-		{"when filePath is a directory - should fail", tempDir, true},
+		{"file path passes", file.Name(), false},
+		{"fails when path is directory", tempDir, true},
 	}
 
 	for _, tt := range tests {
@@ -83,7 +83,7 @@ func TestNewEmail_ValidateFileIsDir(t *testing.T) {
 
 }
 
-func TestNewEmail_ValidateFileExistence(t *testing.T) {
+func TestValidateFileExistence(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
 
@@ -100,8 +100,8 @@ func TestNewEmail_ValidateFileExistence(t *testing.T) {
 		filePath string
 		wantErr  bool
 	}{
-		{"when file exists - should pass", file.Name(), false},
-		{"when file does not exist - should fail", "file/does/not/exist.txt", true},
+		{"existing file passes", file.Name(), false},
+		{"fails when file does not exist", "file/does/not/exist.txt", true},
 	}
 
 	for _, tt := range tests {
@@ -117,7 +117,7 @@ func TestNewEmail_ValidateFileExistence(t *testing.T) {
 
 }
 
-func TestNewEmail_ValidateFileExtension(t *testing.T) {
+func TestValidateFileExtension(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
 
@@ -130,25 +130,25 @@ func TestNewEmail_ValidateFileExtension(t *testing.T) {
 		ext     string
 		wantErr bool
 	}{
-		{"accepts pdf  file - should pass", "pdf", false},
-		{"accepts doc  file - should pass", "doc", false},
-		{"accepts docx file - should pass", "docx", false},
-		{"accepts txt  file - should pass", "txt", false},
-		{"accepts rtf  file - should pass", "rtf", false},
-		{"accepts htm  file - should pass", "htm", false},
-		{"accepts html file - should pass", "html", false},
-		{"accepts png  file - should pass", "png", false},
-		{"accepts gif  file - should pass", "gif", false},
-		{"accepts jpg  file - should pass", "jpg", false},
-		{"accepts jpeg file - should pass", "jpeg", false},
-		{"accepts bmp  file - should pass", "bmp", false},
-		{"accepts epub file - should pass", "epub", false},
-		{"does not accept nonlisted extensions - should fail", "webp", true},
+		{"pdf passes", "pdf", false},
+		{"doc passes", "doc", false},
+		{"docx passes", "docx", false},
+		{"txt passes", "txt", false},
+		{"rtf passes", "rtf", false},
+		{"htm passes", "htm", false},
+		{"html passes", "html", false},
+		{"png passes", "png", false},
+		{"gif passes", "gif", false},
+		{"jpg passes", "jpg", false},
+		{"jpeg passes", "jpeg", false},
+		{"bmp passes", "bmp", false},
+		{"epub passes", "epub", false},
+		{"fails for unsupported extension", "webp", true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			file, _ := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
+			file, err := os.CreateTemp(tempDir, fmt.Sprintf("fileToSend_*.%s", tt.ext))
 			require.NoError(t, err, "failed to create temp file")
 
 			filePath := file.Name()
@@ -163,7 +163,7 @@ func TestNewEmail_ValidateFileExtension(t *testing.T) {
 	}
 }
 
-func TestEmail_Send(t *testing.T) {
+func TestSend(t *testing.T) {
 	profile := profile.Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}
 	password := []byte("12344321")
 
