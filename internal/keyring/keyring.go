@@ -1,6 +1,8 @@
 package keyring
 
 import (
+	"fmt"
+
 	"github.com/99designs/keyring"
 )
 
@@ -24,6 +26,10 @@ func (kr *Keyring) Get(name string) (keyring.Item, error) {
 }
 
 func (kr *Keyring) Save(name string, password string) error {
+	if _, err := kr.ring.Get(name); err == nil {
+		return fmt.Errorf("password for account %q already exists", name)
+	}
+
 	return kr.ring.Set(keyring.Item{
 		Key:  name,
 		Data: []byte(password),
