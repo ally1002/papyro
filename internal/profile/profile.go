@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/ally1002/papyro/internal/config"
@@ -123,5 +124,17 @@ func (p *Profile) Validate() error {
 		return fmt.Errorf("required args cannot be blank")
 	}
 
+	if !isValidEmail(p.FromEmail) {
+		return fmt.Errorf("fromEmail is invalid")
+	}
+
+	if !isValidEmail(p.KindleEmail) {
+		return fmt.Errorf("kindleEmail is invalid")
+	}
+
 	return nil
+}
+
+func isValidEmail(email string) bool {
+	return strings.Contains(email, "@") && strings.Contains(email, ".")
 }

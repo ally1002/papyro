@@ -22,6 +22,8 @@ func TestValidate(t *testing.T) {
 		{"fails when only fromEmail provided", Profile{FromEmail: "aly@aly.com"}, true},
 		{"fails when only kindleEmail provided", Profile{KindleEmail: "aly@kindle.com"}, true},
 		{"passes when all fields provided", Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "aly@kindle.com"}, false},
+		{"fails when fromEmail is invalid", Profile{Name: "aly", FromEmail: "invalid-email", KindleEmail: "aly@kindle.com"}, true},
+		{"fails when kindleEmail is invalid", Profile{Name: "aly", FromEmail: "aly@aly.com", KindleEmail: "invalid-email"}, true},
 	}
 
 	for _, tt := range tests {
