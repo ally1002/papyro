@@ -5,6 +5,7 @@ go 1.25.3
 require (
 	github.com/99designs/keyring v1.2.2
 	github.com/briandowns/spinner v1.23.2
+	github.com/mocktools/go-smtp-mock/v2 v2.5.3
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	github.com/wneessen/go-mail v0.7.2
@@ -21,7 +22,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-isatty v0.0.8 // indirect
-	github.com/mocktools/go-smtp-mock/v2 v2.5.3 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
