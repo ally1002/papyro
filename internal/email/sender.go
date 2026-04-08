@@ -13,10 +13,15 @@ import (
 	"github.com/wneessen/go-mail"
 )
 
+type Mailer interface {
+	DialAndSend(m ...*mail.Msg) error
+}
+
 type Email struct {
 	profile  profile.Profile
 	password []byte
 	filePath string
+	client   Mailer
 }
 
 var permittedExts = []string{"pdf", "doc", "docx", "txt", "rtf", "htm", "html", "png", "gif", "jpg", "jpeg", "bmp", "epub"}
@@ -26,7 +31,12 @@ func NewEmail(profile profile.Profile, password []byte, filePath string) (*Email
 		return nil, err
 	}
 
-	return &Email{profile: profile, password: password, filePath: filePath}, nil
+	c, err := connectClient(profile, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Email{profile: profile, password: password, filePath: filePath, client: c}, nil
 }
 
 func (e *Email) Send() error {
@@ -35,11 +45,6 @@ func (e *Email) Send() error {
 
 	s.Start()
 	defer s.Stop()
-
-	client, err := e.connectClient()
-	if err != nil {
-		return fmt.Errorf("failed to create new mail delivery client: %s", err)
-	}
 
 	msg := mail.NewMsg()
 	if err := msg.From(e.profile.FromEmail); err != nil {
@@ -53,7 +58,7 @@ func (e *Email) Send() error {
 	msg.SetBodyString(mail.TypeTextPlain, "Here is your desired content.")
 	msg.AttachFile(e.filePath)
 
-	if err := client.DialAndSend(msg); err != nil {
+	if err := e.client.DialAndSend(msg); err != nil {
 		return fmt.Errorf("failed to deliver mail: %s", err)
 	}
 
@@ -62,10 +67,10 @@ func (e *Email) Send() error {
 	return nil
 }
 
-func (e *Email) connectClient() (*mail.Client, error) {
+func connectClient(profile profile.Profile, password []byte) (*mail.Client, error) {
 	return mail.NewClient("smtp.gmail.com",
 		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover), mail.WithTLSPortPolicy(mail.TLSMandatory),
-		mail.WithUsername(e.profile.FromEmail), mail.WithPassword(string(e.password)),
+		mail.WithUsername(profile.FromEmail), mail.WithPassword(string(password)),
 	)
 }
 
@@ -87,7 +92,8 @@ func validateFile(filePath string) error {
 		return fmt.Errorf("unsupported file extension; supported formats: %s", formattedExts())
 	}
 
-	if info.Size() > 200*1024*1024 {
+	var maximumFileSize int64 = 200 * 1024 * 1024
+	if info.Size() > maximumFileSize {
 		return fmt.Errorf("file exceeds maximum size of 200 MB")
 	}
 

@@ -3,8 +3,10 @@ package profile
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"slices"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/ally1002/papyro/internal/config"
@@ -37,13 +39,15 @@ func NewProfiles() (*Profiles, error) {
 }
 
 func (ps *Profiles) Get(name string) (*Profile, error) {
-	for _, profile := range ps.Profiles {
-		if profile.Name == name {
-			return &profile, nil
-		}
+	idx := slices.IndexFunc(ps.Profiles, func(p Profile) bool {
+		return p.Name == name
+	})
+
+	if idx == -1 {
+		return nil, fmt.Errorf("profile '%s' does not exist", name)
 	}
 
-	return &Profile{}, fmt.Errorf("profile '%s' does not exist", name)
+	return &ps.Profiles[idx], nil
 }
 
 func (ps *Profiles) Add(p *Profile) error {
@@ -61,8 +65,8 @@ func (ps *Profiles) Add(p *Profile) error {
 	return ps.save()
 }
 
-func (ps *Profiles) List() error {
-	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+func (ps *Profiles) List(w io.Writer) error {
+	writer := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
 
 	_, err := fmt.Fprintln(writer, "NAME\tFROM EMAIL\tKINDLE EMAIL")
 	if err != nil {
@@ -116,9 +120,21 @@ func (ps *Profiles) load() error {
 }
 
 func (p *Profile) Validate() error {
-	if p.Name == "" && p.FromEmail == "" && p.KindleEmail == "" {
+	if p.Name == "" || p.FromEmail == "" || p.KindleEmail == "" {
 		return fmt.Errorf("required args cannot be blank")
 	}
 
+	if !isValidEmail(p.FromEmail) {
+		return fmt.Errorf("fromEmail is invalid")
+	}
+
+	if !isValidEmail(p.KindleEmail) {
+		return fmt.Errorf("kindleEmail is invalid")
+	}
+
 	return nil
+}
+
+func isValidEmail(email string) bool {
+	return strings.Contains(email, "@") && strings.Contains(email, ".")
 }
