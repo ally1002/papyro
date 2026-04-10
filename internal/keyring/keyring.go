@@ -3,7 +3,7 @@ package keyring
 import (
 	"fmt"
 
-	"github.com/99designs/keyring"
+	"github.com/byteness/keyring"
 )
 
 type Keyring struct {

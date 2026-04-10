@@ -3,7 +3,7 @@ package keyring
 import (
 	"testing"
 
-	"github.com/99designs/keyring"
+	"github.com/byteness/keyring"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
