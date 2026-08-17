@@ -6,6 +6,8 @@ before:
 
 builds:
   - main: ./...
+    flags:
+      - -tags=keyring_no1password
     env:
       - CGO_ENABLED=0
     goos:
