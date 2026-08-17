@@ -1,0 +1,9 @@
+# Compiled binary
+/papyro
+
+# GoReleaser output
+/dist/
+
+# Test documents
+*.pdf
+*.epub
