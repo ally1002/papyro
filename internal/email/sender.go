@@ -71,6 +71,7 @@ func connectClient(profile profile.Profile, password []byte) (*mail.Client, erro
 	return mail.NewClient("smtp.gmail.com",
 		mail.WithSMTPAuth(mail.SMTPAuthAutoDiscover), mail.WithTLSPortPolicy(mail.TLSMandatory),
 		mail.WithUsername(profile.FromEmail), mail.WithPassword(string(password)),
+		mail.WithTimeout(5*time.Minute),
 	)
 }
 

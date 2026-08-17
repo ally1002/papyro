@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 ally1002
-*/
 package cmd
 
 import (
@@ -89,8 +86,6 @@ var profileDeleteCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-
-		// need to add a here rollback later
 
 		return nil
 	},

@@ -52,7 +52,17 @@ That's it. The file will arrive on your Kindle shortly.
 - Images: PNG, GIF, JPG, JPEG, BMP
 - eBooks: EPUB
 
-Maximum file size: 200 MB
+## File Size Limits
+
+Papyro sends over SMTP, so it inherits your mail provider's limits. Attachments are base64-encoded on the wire, which inflates them by about 33% — a provider's "25 MB message" is roughly an **18 MB file on disk**.
+
+| Path | Limit | Notes |
+|------|-------|-------|
+| Gmail SMTP (Papyro) | 25 MB encoded (≈ 18 MB file) | Enforced by Gmail, not Papyro |
+| Amazon Send-to-Kindle email | ~50 MB | Applies to any mail provider |
+| Send to Kindle web/app | 200 MB | Outside Papyro's scope |
+
+The effective ceiling is whichever comes first — with Gmail, that's ~18 MB.
 
 ## Commands
 

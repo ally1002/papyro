@@ -1,7 +1,3 @@
-/*
-Copyright © 2025 ally1002
-*/
-
 package cmd
 
 import (
