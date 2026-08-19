@@ -26,9 +26,9 @@ func TestValidateFileSize(t *testing.T) {
 		fileSize int64
 		wantErr  bool
 	}{
-		{"under 200mb passes", 25 * 1024 * 1024, false},
-		{"exactly 200mb passes", 200 * 1024 * 1024, false},
-		{"fails when over 200mb", 200*1024*1024 + 1, true},
+		{"under 50mb passes", 25 * 1024 * 1024, false},
+		{"exactly 50mb passes", 50 * 1024 * 1024, false},
+		{"fails when over 50mb", 50*1024*1024 + 1, true},
 	}
 
 	for _, tt := range tests {
