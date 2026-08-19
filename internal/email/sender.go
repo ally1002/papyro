@@ -93,9 +93,9 @@ func validateFile(filePath string) error {
 		return fmt.Errorf("unsupported file extension; supported formats: %s", formattedExts())
 	}
 
-	var maximumFileSize int64 = 200 * 1024 * 1024
+	var maximumFileSize int64 = 50 * 1024 * 1024
 	if info.Size() > maximumFileSize {
-		return fmt.Errorf("file exceeds maximum size of 200 MB")
+		return fmt.Errorf("file exceeds maximum size of 50 MB")
 	}
 
 	return nil
